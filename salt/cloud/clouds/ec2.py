@@ -1593,7 +1593,6 @@ def request_instance(vm_=None, call=None):
     image_id = vm_['image']
     params[spot_prefix + 'ImageId'] = image_id
 
-    userdata = None
     userdata_file = config.get_cloud_config_value(
         'userdata_file', vm_, __opts__, search_global=False, default=None
     )
@@ -1606,6 +1605,10 @@ def request_instance(vm_=None, call=None):
         if os.path.exists(userdata_file):
             with salt.utils.fopen(userdata_file, 'r') as fh_:
                 userdata = fh_.read()
+        else:
+            raise SaltCloudConfigError(
+                'unable to read userdata_file: {0}'.format(userdata_file)
+            )
 
     if userdata is not None:
         params[spot_prefix + 'UserData'] = base64.b64encode(userdata)
